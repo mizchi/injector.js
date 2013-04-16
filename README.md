@@ -7,7 +7,7 @@ injector.js is JavaScript DI injector inspired by robotlegs(AS3)
 Include me.
 
 ```coffee
-{Injector} = require "../src/injector"
+{Injector} = require "injector"
 ```
 
 or
