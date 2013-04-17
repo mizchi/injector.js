@@ -18,6 +18,7 @@ or
 <script src="injector.js"></script>
 ```
 
+### CoffeeScript
 
 ```coffee
 
@@ -35,6 +36,28 @@ Injector.mapValue UserModel #=> create UserModel instance
 x = new X_View
 console.log x.model #=> reference to UserModel instance via prototype
 ```
+
+Injector.js tune to use on coffee.
+
+### JavaScript
+
+```
+Injector = require("./injector").Injector;
+
+function UserModel(){};
+
+function X_View(){};
+Injector.register(Y);
+X_View.inject = {
+  model:UserModel
+}
+
+Injector.mapValue(UserModel);
+var x = new X_View;
+console.log(x.model);
+```
+
+
 
 
 ## API

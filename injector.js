@@ -92,17 +92,21 @@
         _results = [];
         for (key in _ref1) {
           val = _ref1[key];
-          if (val === Class) {
-            _results.push(Object.defineProperty(ListnerClass.prototype, key, {
-              value: (function(func, args, ctor) {
-                ctor.prototype = func.prototype;
-                var child = new ctor, result = func.apply(child, args);
-                return Object(result) === result ? result : child;
-              })(Class, args, function(){}),
-              writable: false,
-              configurable: true
-            }));
+          if (!(val === Class)) {
+            continue;
           }
+          if (ListnerClass.prototype[key]) {
+            throw new Error("Already " + key + " exists.");
+          }
+          _results.push(Object.defineProperty(ListnerClass.prototype, key, {
+            value: (function(func, args, ctor) {
+              ctor.prototype = func.prototype;
+              var child = new ctor, result = func.apply(child, args);
+              return Object(result) === result ? result : child;
+            })(Class, args, function(){}),
+            writable: false,
+            configurable: true
+          }));
         }
         return _results;
       });
