@@ -92,3 +92,8 @@ describe "Injector", ->
       Injector.unmap X
       assert.ok y.x == null
 
+  describe "#new", ->
+    it "should instantiate new injector", ->
+      childInjector = new Injector
+      class X
+      childInjector.mapValue X
