@@ -109,6 +109,20 @@ console.log b.a # exist a instance
 console.log (b.a is c.a) # true
 ```
 
+```coffee
+# inject to class
+class A
+class B
+  @inject:
+    a: A
+
+a = new A
+Injector.mapSingleton A, a
+
+b = new B
+console.log (b.a is a) # true
+```
+
 ### Injector.unmap
 
 Delete injected values.

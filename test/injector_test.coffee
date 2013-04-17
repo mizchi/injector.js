@@ -47,6 +47,18 @@ describe "Injector", ->
 
       assert.ok y.x instanceof X
 
+    it "should deliver existed instance", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      x = new X
+
+      Injector.mapSingleton X, x
+      y = new Y
+      assert.ok y.x is x
+
     it "should inject before new", ->
       class X
       class Y1
