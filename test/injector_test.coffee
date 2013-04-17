@@ -1,43 +1,94 @@
-# EXAMPLE
 {Injector} = require "../src/injector"
-class UserModel
-  constructor: ->
-    @x = 3
+assert = require "assert"
 
-class Event
-  constructor: ->
-    this.date = new Date
+# replace mocha later
+describe = (str,fn) -> fn()
+it = (str, fn) -> fn()
 
-class X_View
-  Injector.register(@)
-  @inject:
-    model: UserModel
-    event: Event
+describe "Injector", ->
+  describe "#mapValue", ->
+    it "should inject before new", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
+      y = new Y
 
-class Y_View
-  Injector.register(@)
-  @inject:
-    model: UserModel
-    event: Event
+      assert.ok y.x instanceof X
 
-Injector.mapValue UserModel
-Injector.mapSingleton Event
+    it "should inject before new", ->
+      class X
+      class Y1
+        Injector.register @
+        @inject:
+          x: X
+      class Y2
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
 
-x = new X_View
-Injector.ensureProperties x
+      y1 = new Y1
+      y2 = new Y2
 
-y = new Y_View
-console.log "x.model", x.model
-x.model = 3
-delete x.model
-console.log "x.model", x.model
-console.log "y.model", y.model
-console.log x.event is y.event
+      assert.ok y1.x isnt y2.x
 
-Injector.unmap UserModel
-console.log x.model
-console.log x.event
+  describe "#mapSingleton", ->
+    it "should inject before new", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapSingleton X
+      y = new Y
 
-Injector.unregister Y_View
-console.log y.event
+      assert.ok y.x instanceof X
+
+    it "should inject before new", ->
+      class X
+      class Y1
+        Injector.register @
+        @inject:
+          x: X
+      class Y2
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapSingleton X
+
+      y1 = new Y1
+      y2 = new Y2
+
+      assert.ok y1.x is y2.x
+
+  describe "#unregister", ->
+    it "should remove from inejected list", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
+      y = new Y
+      assert.ok y.x instanceof X
+
+      Injector.unregister Y
+      assert.ok y.x == null
+
+  describe "#unmap", ->
+    it "should remove injected object", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
+      y = new Y
+      assert.ok y.x instanceof X
+
+      Injector.unmap X
+      assert.ok y.x == null
 
