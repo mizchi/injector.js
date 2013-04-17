@@ -56,3 +56,6 @@ class root.Injector
           value: null
           writable: false
           configurable: true
+
+if typeof define is 'function' and typeof define.amd is 'object' and define.amd
+  define -> Injector
