@@ -33,7 +33,7 @@ class root.Injector
         configurable: true
     @known_list.splice n, 1
 
-  mapSingleton: (Class, args...) ->
+  mapValue: (Class, args...) ->
     @known_list.forEach (ListnerClass) ->
       for key, val of ListnerClass.inject when val is Class
         Object.defineProperty ListnerClass.prototype, key,
@@ -41,7 +41,7 @@ class root.Injector
           writable: false
           configurable: true
 
-  mapValue: (Class, instance = undefined) ->
+  mapSingleton: (Class, instance = undefined) ->
     instance ||= new Class
     unless instance instanceof Class then throw "#{instance} is not #{Class} instance"
 

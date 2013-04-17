@@ -81,7 +81,7 @@
       return this.known_list.splice(n, 1);
     };
 
-    Injector.prototype.mapSingleton = function() {
+    Injector.prototype.mapValue = function() {
       var Class, args;
 
       Class = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -108,7 +108,7 @@
       });
     };
 
-    Injector.prototype.mapValue = function(Class, instance) {
+    Injector.prototype.mapSingleton = function(Class, instance) {
       if (instance == null) {
         instance = void 0;
       }
