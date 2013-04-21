@@ -86,7 +86,7 @@
 
       Class = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       return this.known_list.forEach(function(ListnerClass) {
-        var key, val, _ref1, _results;
+        var instance_key, key, val, _ref1, _results;
 
         _ref1 = ListnerClass.inject;
         _results = [];
@@ -98,13 +98,16 @@
           if (ListnerClass.prototype[key]) {
             throw new Error("Already " + key + " exists.");
           }
+          instance_key = "_" + key;
           _results.push(Object.defineProperty(ListnerClass.prototype, key, {
-            value: (function(func, args, ctor) {
-              ctor.prototype = func.prototype;
-              var child = new ctor, result = func.apply(child, args);
-              return Object(result) === result ? result : child;
-            })(Class, args, function(){}),
-            writable: false,
+            get: function() {
+              return this[instance_key] || (this[instance_key] = (function(func, args, ctor) {
+                ctor.prototype = func.prototype;
+                var child = new ctor, result = func.apply(child, args);
+                return Object(result) === result ? result : child;
+              })(Class, args, function(){}));
+            },
+            enumerable: false,
             configurable: true
           }));
         }
@@ -161,5 +164,11 @@
     return Injector;
 
   })();
+
+  if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
+    define(function() {
+      return Injector;
+    });
+  }
 
 }).call(this);
