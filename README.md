@@ -31,7 +31,7 @@ class X_View
   @inject:
     model: UserModel
 
-Injector.mapValue UserModel #=> create UserModel instance
+Injector.mapSingleton UserModel, new UserModel #=> create UserModel instance
 
 x = new X_View
 console.log x.model #=> reference to UserModel instance via prototype
@@ -41,9 +41,7 @@ Injector.js tune to use on coffee.
 
 ### JavaScript
 
-```
-Injector = require("./injector").Injector;
-
+```javascript
 function UserModel(){};
 
 function X_View(){};
@@ -52,12 +50,10 @@ X_View.inject = {
   model:UserModel
 }
 
-Injector.mapValue(UserModel);
+Injector.mapSingleton(UserModel, new UserModel);
 var x = new X_View;
 console.log(x.model);
 ```
-
-
 
 
 ## API
@@ -65,6 +61,8 @@ console.log(x.model);
 ### Injector.mapValue
 
 Allocate individual instance.
+
+NOTICE: Injected value will be evaluated and initialized on first reference(getter).
 
 `Injector.mapValue(Class[, args...])`
 
@@ -102,7 +100,7 @@ class C
   @inject:
     a: A
 
-Injector.mapSingleton A
+Injector.mapSingleton A, new A
 b = new B
 c = new C
 console.log b.a # exist a instance
