@@ -36,17 +36,6 @@ describe "Injector", ->
       assert.ok y1.x isnt y2.x
 
   describe "#mapSingleton", ->
-    it "should inject before new", ->
-      class X
-      class Y
-        Injector.register @
-        @inject:
-          x: X
-      Injector.mapSingleton X
-      y = new Y
-
-      assert.ok y.x instanceof X
-
     it "should deliver existed instance", ->
       class X
       class Y
@@ -69,7 +58,9 @@ describe "Injector", ->
         Injector.register @
         @inject:
           x: X
-      Injector.mapSingleton X
+
+      x = new X
+      Injector.mapSingleton X, x
 
       y1 = new Y1
       y2 = new Y2

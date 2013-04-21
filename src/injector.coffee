@@ -43,9 +43,9 @@ class root.Injector
           enumerable: false
           configurable: true
 
-  mapSingleton: (Class, instance = undefined) ->
-    instance ||= new Class
-    unless instance instanceof Class then throw "#{instance} is not #{Class} instance"
+  mapSingleton: (Class, instance) ->
+    unless instance instanceof Class
+      throw "#{instance} is not #{Class} instance"
     @known_list.forEach (ListnerClass) ->
       for key, val of ListnerClass.inject when val is Class
         ListnerClass::[key] = instance

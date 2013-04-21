@@ -116,10 +116,6 @@
     };
 
     Injector.prototype.mapSingleton = function(Class, instance) {
-      if (instance == null) {
-        instance = void 0;
-      }
-      instance || (instance = new Class);
       if (!(instance instanceof Class)) {
         throw "" + instance + " is not " + Class + " instance";
       }
