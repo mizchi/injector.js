@@ -65,7 +65,7 @@ class root.Injector
               @[instance_key] = new Class args...
               # reset counter
               Object.defineProperty @, cnt_key,
-                value: 0
+                value: Listener[cnt_key]
                 enumerable: false
                 configurable: true
             return @[instance_key]
