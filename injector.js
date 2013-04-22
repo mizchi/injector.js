@@ -50,13 +50,13 @@
       this.known_list = [];
     }
 
-    Injector.prototype.register = function(ListnerClass) {
+    Injector.prototype.register = function(Listener) {
       var key, _results;
 
-      this.known_list.push(ListnerClass);
+      this.known_list.push(Listener);
       _results = [];
-      for (key in ListnerClass.inject) {
-        _results.push(Object.defineProperty(ListnerClass.prototype, key, {
+      for (key in Listener.inject) {
+        _results.push(Object.defineProperty(Listener.prototype, key, {
           value: null,
           writable: false,
           configurable: true
@@ -65,16 +65,18 @@
       return _results;
     };
 
-    Injector.prototype.unregister = function(ListnerClass) {
-      var k, n, v, _ref1;
+    Injector.prototype.unregister = function(Listener) {
+      var Class, n, prop, _ref1;
 
-      n = this.known_list.indexOf(ListnerClass);
-      _ref1 = ListnerClass.inject;
-      for (k in _ref1) {
-        v = _ref1[k];
-        Object.defineProperty(ListnerClass.prototype, k, {
-          value: null,
-          writable: false,
+      n = this.known_list.indexOf(Listener);
+      _ref1 = Listener.inject;
+      for (prop in _ref1) {
+        Class = _ref1[prop];
+        Object.defineProperty(Listener.prototype, prop, {
+          get: function() {
+            this['_' + prop] = null;
+            return null;
+          },
           configurable: true
         });
       }
@@ -85,30 +87,51 @@
       var Class, args;
 
       Class = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return this.known_list.forEach(function(ListnerClass) {
-        var instance_key, key, val, _ref1, _results;
+      return this.known_list.forEach(function(Listener) {
+        var cnt_key, instance_key, key, val, _ref1, _results;
 
-        _ref1 = ListnerClass.inject;
+        _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
           val = _ref1[key];
           if (!(val === Class)) {
             continue;
           }
-          if (ListnerClass.prototype[key]) {
+          if (Listener.prototype[key]) {
             throw new Error("Already " + key + " exists.");
           }
+          cnt_key = "update#" + key;
+          if (Listener[cnt_key] != null) {
+            Listener[cnt_key]++;
+          } else {
+            Object.defineProperty(Listener, cnt_key, {
+              value: 0,
+              enumerable: false,
+              writable: true
+            });
+          }
           instance_key = "_" + key;
-          _results.push(Object.defineProperty(ListnerClass.prototype, key, {
-            get: function() {
-              return this[instance_key] || (this[instance_key] = (function(func, args, ctor) {
-                ctor.prototype = func.prototype;
-                var child = new ctor, result = func.apply(child, args);
-                return Object(result) === result ? result : child;
-              })(Class, args, function(){}));
-            },
+          _results.push(Object.defineProperty(Listener.prototype, key, {
             enumerable: false,
-            configurable: true
+            configurable: true,
+            get: function() {
+              if (Listener[cnt_key] > this[cnt_key]) {
+                delete this[instance_key];
+              }
+              if (!this[instance_key]) {
+                this[instance_key] = (function(func, args, ctor) {
+                  ctor.prototype = func.prototype;
+                  var child = new ctor, result = func.apply(child, args);
+                  return Object(result) === result ? result : child;
+                })(Class, args, function(){});
+                Object.defineProperty(this, cnt_key, {
+                  value: Listener[cnt_key],
+                  enumerable: false,
+                  configurable: true
+                });
+              }
+              return this[instance_key];
+            }
           }));
         }
         return _results;
@@ -119,15 +142,15 @@
       if (!(instance instanceof Class)) {
         throw "" + instance + " is not " + Class + " instance";
       }
-      return this.known_list.forEach(function(ListnerClass) {
+      return this.known_list.forEach(function(Listener) {
         var key, val, _ref1, _results;
 
-        _ref1 = ListnerClass.inject;
+        _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
           val = _ref1[key];
           if (val === Class) {
-            _results.push(ListnerClass.prototype[key] = instance);
+            _results.push(Listener.prototype[key] = instance);
           }
         }
         return _results;
@@ -138,15 +161,15 @@
       if (Class == null) {
         Class = null;
       }
-      return this.known_list.forEach(function(ListnerClass) {
+      return this.known_list.forEach(function(Listener) {
         var key, val, _ref1, _results;
 
-        _ref1 = ListnerClass.inject;
+        _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
           val = _ref1[key];
           if (!(Class != null) || val === Class) {
-            _results.push(Object.defineProperty(ListnerClass.prototype, key, {
+            _results.push(Object.defineProperty(Listener.prototype, key, {
               value: null,
               writable: false,
               configurable: true
