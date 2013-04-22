@@ -170,3 +170,12 @@ childInjector = new Injector
 childInjector.mapValue A
 ```
 
+
+### ChangeLog
+
+#### v0.0.2
+- injector annotation must be defined as function or String
+- fix mapValue update after unmap
+
+#### v0.0.1
+- release
