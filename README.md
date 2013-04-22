@@ -45,7 +45,7 @@ Injector.js tune to use on coffee.
 function UserModel(){};
 
 function X_View(){};
-Injector.register(Y);
+Injector.register(UserModel);
 X_View.inject = {
   model:UserModel
 }
@@ -70,9 +70,11 @@ NOTICE: Injected value will be evaluated and initialized on first reference(gett
 # inject to class
 class A
 class B
+  Injector.register(@)
   @inject:
     a: A
 class C
+  Injector.register(@)
   @inject:
     a: A
 
@@ -94,6 +96,7 @@ Allocate singleton instance.
 # inject to class
 class A
 class B
+  Injector.register(@)
   @inject:
     a: A
 class C
@@ -111,6 +114,7 @@ console.log (b.a is c.a) # true
 # inject to class
 class A
 class B
+  Injector.register(@)
   @inject:
     a: A
 
@@ -130,12 +134,33 @@ Delete injected values.
 ```coffee
 class A
 class B
+  Injector.register(@)
   @inject:
     a: A
 Injector.mapSingleton A
 b = new B
 Injector.unmap A
 console.log b.a # null
+```
+
+### Injector.ensureProperties
+
+Ensure target being filled all injected properties
+
+`Injector.ensureProperties(foo)`
+
+```coffee
+class A
+class B
+  Injector.register(@)
+  @inject:
+    a: A
+  constructor:->
+    Injector.ensureProperties(@)
+
+# b = new B #=> error! A is not injected
+Injector.mapSingleton A
+b = new B # success
 ```
 
 ### new Injector'
