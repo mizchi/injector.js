@@ -97,9 +97,6 @@
           if (!(val === Class)) {
             continue;
           }
-          if (Listener.prototype[key]) {
-            throw new Error("Already " + key + " exists.");
-          }
           cnt_key = "update#" + key;
           if (Listener[cnt_key] != null) {
             Listener[cnt_key]++;
@@ -149,9 +146,13 @@
         _results = [];
         for (key in _ref1) {
           val = _ref1[key];
-          if (val === Class) {
-            _results.push(Listener.prototype[key] = instance);
+          if (!(val === Class)) {
+            continue;
           }
+          if (Listener.prototype[key]) {
+            throw "" + key + " already exists";
+          }
+          _results.push(Listener.prototype[key] = instance);
         }
         return _results;
       });

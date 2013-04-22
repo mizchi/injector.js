@@ -52,6 +52,18 @@ describe "Injector", ->
       Injector.mapValue X
       assert.ok last_x isnt y1.x
 
+    it "can override", ->
+      class X
+      class Y
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
+      y = new Y
+      last_x = y.x
+      Injector.mapValue X
+      assert.ok y.x isnt last_x
+
   describe "#mapSingleton", ->
     it "should deliver existed instance", ->
       class X
@@ -83,6 +95,19 @@ describe "Injector", ->
       y2 = new Y2
 
       assert.ok y1.x is y2.x
+
+    it "can receieve polymorphic class ", ->
+      class X
+      class X1 extends X
+      class X2 extends X
+      class Y
+        Injector.register @
+        @inject:
+          x:X
+
+      Injector.mapSingleton X, new X1
+      y = new Y
+      assert.ok y.x instanceof X1
 
   describe "#unregister", ->
     it "should remove from inejected list", ->

@@ -38,8 +38,6 @@ class root.Injector
   mapValue: (Class, args...) ->
     @known_list.forEach (Listener) ->
       for key, val of Listener.inject when val is Class
-        if Listener.prototype[key] then throw new Error "Already #{key} exists."
-
         # update count key for redefine
         cnt_key = "update#"+key
 
@@ -75,6 +73,7 @@ class root.Injector
       throw "#{instance} is not #{Class} instance"
     @known_list.forEach (Listener) ->
       for key, val of Listener.inject when val is Class
+        if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
   unmap: (Class = null) ->
