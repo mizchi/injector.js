@@ -47,9 +47,9 @@ class root.Injector
         configurable: true
     @known_list.splice n, 1
 
-  mapValue: (Class, args...) ->
+  mapValue: (InjectClass, args...) ->
     @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when getInjectClass(f) is Class
+      for key, f of Listener.inject when getInjectClass(f) is InjectClass
         val = getInjectClass(f)
 
         # update count key for redefine
@@ -74,7 +74,7 @@ class root.Injector
 
             # when instance is not defined, create new
             unless @[instance_key]
-              @[instance_key] = new Class args...
+              @[instance_key] = new InjectClass args...
               # reset counter
               Object.defineProperty @, cnt_key,
                 value: Listener[cnt_key]
@@ -82,18 +82,19 @@ class root.Injector
                 configurable: true
             return @[instance_key]
 
-  mapSingleton: (Class, instance) ->
-    unless instance instanceof Class
-      throw "#{instance} is not #{Class} instance"
+  mapSingleton: (InjectClass, instance) ->
+    unless instance instanceof InjectClass
+      throw "#{instance} is not #{InjectorClass} instance"
+
     @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when getInjectClass(f) is Class
+      for key, f of Listener.inject when getInjectClass(f) is InjectClass
         val = getInjectClass(f)
         if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
-  unmap: (Class = null) ->
+  unmap: (InjectClass = null) ->
     @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when !(Class?) or getInjectClass(f) is Class
+      for key, f of Listener.inject when !(InjectClass?) or getInjectClass(f) is InjectClass
         val = getInjectClass(f)
         Object.defineProperty Listener.prototype, key,
           value: null
