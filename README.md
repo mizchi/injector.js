@@ -21,15 +21,12 @@ or
 ### CoffeeScript
 
 ```coffee
-
 class UserModel
-  constructor: ->
-    @data = 3
 
 class X_View
   Injector.register(@) #=> notify itself
   @inject:
-    model: UserModel
+    model: -> UserModel
 
 Injector.mapSingleton UserModel, new UserModel #=> create UserModel instance
 
@@ -47,7 +44,7 @@ function UserModel(){};
 function X_View(){};
 Injector.register(UserModel);
 X_View.inject = {
-  model:UserModel
+  model:functon(){return UserModel;}
 }
 
 Injector.mapSingleton(UserModel, new UserModel);
@@ -72,11 +69,11 @@ class A
 class B
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
 class C
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
 
 # use
 Injector.mapValue A
@@ -98,10 +95,10 @@ class A
 class B
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
 class C
   @inject:
-    a: A
+    a: -> A
 
 Injector.mapSingleton A, new A
 b = new B
@@ -116,7 +113,7 @@ class A
 class B
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
 
 a = new A
 Injector.mapSingleton A, a
@@ -136,7 +133,7 @@ class A
 class B
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
 Injector.mapSingleton A
 b = new B
 Injector.unmap A
@@ -154,7 +151,7 @@ class A
 class B
   Injector.register(@)
   @inject:
-    a: A
+    a: -> A
   constructor:->
     Injector.ensureProperties(@)
 
