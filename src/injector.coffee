@@ -1,5 +1,6 @@
 root = window ? exports ? this
 class root.Injector
+  # rootInjector pass Injector#[method]
   rootInjector = new this
   @register    : -> rootInjector.register     arguments...
   @unregister  : -> rootInjector.unregister   arguments...
@@ -16,65 +17,70 @@ class root.Injector
   constructor: ->
     @known_list = []
 
-  register: (ListnerClass)->
-    @known_list.push ListnerClass
-    for key of ListnerClass.inject
-      Object.defineProperty ListnerClass.prototype, key,
+  register: (Listener)->
+    @known_list.push Listener
+    for key of Listener.inject
+      Object.defineProperty Listener.prototype, key,
         value: null
         writable: false
         configurable: true
 
-  unregister: (ListnerClass)->
-    n = @known_list.indexOf(ListnerClass)
-    for k, v of ListnerClass.inject
-      Object.defineProperty ListnerClass.prototype, k,
-        value: null
-        writable: false
+  unregister: (Listener)->
+    n = @known_list.indexOf(Listener)
+    for prop, Class of Listener.inject
+      Object.defineProperty Listener.prototype, prop,
+        get: ->
+          @['_' + prop] = null
+          null
         configurable: true
     @known_list.splice n, 1
 
   mapValue: (Class, args...) ->
-    @known_list.forEach (ListnerClass) ->
-      for key, val of ListnerClass.inject when val is Class
-        if ListnerClass.prototype[key] then throw new Error "Already #{key} exists."
+    @known_list.forEach (Listener) ->
+      for key, val of Listener.inject when val is Class
+        if Listener.prototype[key] then throw new Error "Already #{key} exists."
 
+        # update count key for redefine
         cnt_key = "update#"+key
 
-        # cnt reset
-        if ListnerClass[cnt_key]?
-          ListnerClass[cnt_key]++
+        # reset counter
+        if Listener[cnt_key]?
+          Listener[cnt_key]++
         else
-          Object.defineProperty ListnerClass, cnt_key,
+          Object.defineProperty Listener, cnt_key,
             value: 0
             enumerable: false
             writable: true
 
         instance_key = "_" + key
-        Object.defineProperty ListnerClass.prototype, key,
+        Object.defineProperty Listener.prototype, key,
           enumerable: false
           configurable: true
           get: ->
-            if ListnerClass[cnt_key] > @[cnt_key] then delete @[instance_key]
+            # remove instnace if value is redefined
+            if Listener[cnt_key] > @[cnt_key] then delete @[instance_key]
+
+            # when instance is not defined, create new
             unless @[instance_key]
+              @[instance_key] = new Class args...
+              # reset counter
               Object.defineProperty @, cnt_key,
                 value: 0
                 enumerable: false
                 configurable: true
-
-              @[instance_key] = new Class args...
-            @[instance_key]
+            return @[instance_key]
 
   mapSingleton: (Class, instance) ->
     unless instance instanceof Class
       throw "#{instance} is not #{Class} instance"
-    @known_list.forEach (ListnerClass) ->
-      for key, val of ListnerClass.inject when val is Class
-        ListnerClass::[key] = instance
+    @known_list.forEach (Listener) ->
+      for key, val of Listener.inject when val is Class
+        Listener::[key] = instance
 
   unmap: (Class = null) ->
-    @known_list.forEach (ListnerClass) ->
-      for key, val of ListnerClass.inject when !(Class?) or val is Class
-        Object.defineProperty ListnerClass.prototype, key,
+    @known_list.forEach (Listener) ->
+      for key, val of Listener.inject when !(Class?) or val is Class
+        Object.defineProperty Listener.prototype, key,
           value: null
           writable: false
           configurable: true
