@@ -9,10 +9,22 @@ class root.Injector
   @unmap       : -> rootInjector.unmap        arguments...
 
   @ensureProperties: (instance)->
-    for k,v of instance.constructor.inject
-      if instance.hasOwnProperty k then throw new Error "Injected property must not be object own property"
-      unless instance[k] then throw new Error "lack of [#{k}] on initialize"
+    for key,f of instance.constructor.inject
+      val = getInjectClass(f)
+      if instance.hasOwnProperty key then throw new Error "Injected property must not be object own property"
+      unless instance[k] then throw new Error "lack of [#{key}] on initialize"
     true
+
+  getInjectClass = (name) ->
+    if (typeof name) is "string"
+      val = root
+      for n in name.split('.')
+        val = val[n]
+      return val
+    else if name instanceof Function
+      return name()
+    else
+      return name
 
   constructor: ->
     @known_list = []
@@ -27,7 +39,7 @@ class root.Injector
 
   unregister: (Listener)->
     n = @known_list.indexOf(Listener)
-    for prop, Class of Listener.inject
+    for prop of Listener.inject
       Object.defineProperty Listener.prototype, prop,
         get: ->
           @['_' + prop] = null
@@ -37,7 +49,9 @@ class root.Injector
 
   mapValue: (Class, args...) ->
     @known_list.forEach (Listener) ->
-      for key, val of Listener.inject when val is Class
+      for key, f of Listener.inject when getInjectClass(f) is Class
+        val = getInjectClass(f)
+
         # update count key for redefine
         cnt_key = "update#"+key
 
@@ -72,13 +86,15 @@ class root.Injector
     unless instance instanceof Class
       throw "#{instance} is not #{Class} instance"
     @known_list.forEach (Listener) ->
-      for key, val of Listener.inject when val is Class
+      for key, f of Listener.inject when getInjectClass(f) is Class
+        val = getInjectClass(f)
         if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
   unmap: (Class = null) ->
     @known_list.forEach (Listener) ->
-      for key, val of Listener.inject when !(Class?) or val is Class
+      for key, f of Listener.inject when !(Class?) or getInjectClass(f) is Class
+        val = getInjectClass(f)
         Object.defineProperty Listener.prototype, key,
           value: null
           writable: false

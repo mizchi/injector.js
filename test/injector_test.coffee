@@ -12,7 +12,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
       y = new Y
 
@@ -23,11 +23,11 @@ describe "Injector", ->
       class Y1
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       class Y2
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
 
       y1 = new Y1
@@ -40,7 +40,7 @@ describe "Injector", ->
       class Y1
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
       y1 = new Y1
       assert.ok y1.x is y1.x
@@ -57,7 +57,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
       y = new Y
       last_x = y.x
@@ -70,7 +70,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       x = new X
 
       Injector.mapSingleton X, x
@@ -82,11 +82,11 @@ describe "Injector", ->
       class Y1
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       class Y2
         Injector.register @
         @inject:
-          x: X
+          x: -> X
 
       x = new X
       Injector.mapSingleton X, x
@@ -103,7 +103,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x:X
+          x: -> X
 
       Injector.mapSingleton X, new X1
       y = new Y
@@ -115,7 +115,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
       y = new Y
       assert.ok y.x instanceof X
@@ -129,7 +129,7 @@ describe "Injector", ->
       class Y
         Injector.register @
         @inject:
-          x: X
+          x: -> X
       Injector.mapValue X
       y = new Y
       assert.ok y.x instanceof X
