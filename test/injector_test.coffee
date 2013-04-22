@@ -35,6 +35,23 @@ describe "Injector", ->
 
       assert.ok y1.x isnt y2.x
 
+    it "should change instance after unmap", ->
+      class X
+      class Y1
+        Injector.register @
+        @inject:
+          x: X
+      Injector.mapValue X
+      y1 = new Y1
+      assert.ok y1.x is y1.x
+
+      # unmap
+      last_x = y1.x
+      Injector.unmap X
+      assert.ok y1.x is null
+      Injector.mapValue X
+      assert.ok last_x isnt y1.x
+
   describe "#mapSingleton", ->
     it "should deliver existed instance", ->
       class X

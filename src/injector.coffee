@@ -37,11 +37,32 @@ class root.Injector
     @known_list.forEach (ListnerClass) ->
       for key, val of ListnerClass.inject when val is Class
         if ListnerClass.prototype[key] then throw new Error "Already #{key} exists."
+
+        cnt_key = "update#"+key
+
+        # cnt reset
+        if ListnerClass[cnt_key]?
+          ListnerClass[cnt_key]++
+        else
+          Object.defineProperty ListnerClass, cnt_key,
+            value: 0
+            enumerable: false
+            writable: true
+
         instance_key = "_" + key
         Object.defineProperty ListnerClass.prototype, key,
-          get: -> @[instance_key] ||= new Class args...
           enumerable: false
           configurable: true
+          get: ->
+            if ListnerClass[cnt_key] > @[cnt_key] then delete @[instance_key]
+            unless @[instance_key]
+              Object.defineProperty @, cnt_key,
+                value: 0
+                enumerable: false
+                configurable: true
+
+              @[instance_key] = new Class args...
+            @[instance_key]
 
   mapSingleton: (Class, instance) ->
     unless instance instanceof Class
