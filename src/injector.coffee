@@ -9,8 +9,7 @@ class root.Injector
   @unmap       : -> rootInjector.unmap        arguments...
 
   @ensureProperties: (instance)->
-    for key,f of instance.constructor.inject
-      val = @_getInjectClass(f)
+    for key of instance.constructor.inject
       if instance.hasOwnProperty key then throw new Error "Injected property must not be object own property"
       unless instance[k] then throw new Error "lack of [#{key}] on initialize"
     true
@@ -49,8 +48,9 @@ class root.Injector
 
   mapValue: (InjectClass, args...) ->
     @known_list.forEach (Listener) =>
-      for key, f of Listener.inject when @_getInjectClass(f) is InjectClass
+      for key, f of Listener.inject
         val = @_getInjectClass(f)
+        if val isnt InjectClass then continue
 
         # update count key for redefine
         cnt_key = "update#"+key
@@ -87,8 +87,10 @@ class root.Injector
       throw "#{instance} is not #{InjectorClass} instance"
 
     @known_list.forEach (Listener) =>
-      for key, f of Listener.inject when @_getInjectClass(f) is InjectClass
+      for key, f of Listener.inject
         val = @_getInjectClass(f)
+        if val isnt InjectClass then continue
+
         if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
@@ -96,6 +98,7 @@ class root.Injector
     @known_list.forEach (Listener) =>
       for key, f of Listener.inject when !(InjectClass?) or @_getInjectClass(f) is InjectClass
         val = @_getInjectClass(f)
+
         Object.defineProperty Listener.prototype, key,
           value: null
           writable: false
