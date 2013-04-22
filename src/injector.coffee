@@ -10,14 +10,14 @@ class root.Injector
 
   @ensureProperties: (instance)->
     for key,f of instance.constructor.inject
-      val = getInjectClass(f)
+      val = @_getInjectClass(f)
       if instance.hasOwnProperty key then throw new Error "Injected property must not be object own property"
       unless instance[k] then throw new Error "lack of [#{key}] on initialize"
     true
 
-  getInjectClass = (name) ->
+  _getInjectClass: (name) ->
     if (typeof name) is "string"
-      val = root
+      val = @root
       for n in name.split('.')
         val = val[n]
       return val
@@ -26,7 +26,7 @@ class root.Injector
     else
       return name
 
-  constructor: ->
+  constructor: (@root = root)->
     @known_list = []
 
   register: (Listener)->
@@ -39,18 +39,18 @@ class root.Injector
 
   unregister: (Listener)->
     n = @known_list.indexOf(Listener)
-    for prop of Listener.inject
-      Object.defineProperty Listener.prototype, prop,
+    for key of Listener.inject
+      Object.defineProperty Listener.prototype, key,
         get: ->
-          @['_' + prop] = null
+          @['_' + key] = null
           null
         configurable: true
     @known_list.splice n, 1
 
   mapValue: (InjectClass, args...) ->
-    @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when getInjectClass(f) is InjectClass
-        val = getInjectClass(f)
+    @known_list.forEach (Listener) =>
+      for key, f of Listener.inject when @_getInjectClass(f) is InjectClass
+        val = @_getInjectClass(f)
 
         # update count key for redefine
         cnt_key = "update#"+key
@@ -86,16 +86,16 @@ class root.Injector
     unless instance instanceof InjectClass
       throw "#{instance} is not #{InjectorClass} instance"
 
-    @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when getInjectClass(f) is InjectClass
-        val = getInjectClass(f)
+    @known_list.forEach (Listener) =>
+      for key, f of Listener.inject when @_getInjectClass(f) is InjectClass
+        val = @_getInjectClass(f)
         if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
   unmap: (InjectClass = null) ->
-    @known_list.forEach (Listener) ->
-      for key, f of Listener.inject when !(InjectClass?) or getInjectClass(f) is InjectClass
-        val = getInjectClass(f)
+    @known_list.forEach (Listener) =>
+      for key, f of Listener.inject when !(InjectClass?) or @_getInjectClass(f) is InjectClass
+        val = @_getInjectClass(f)
         Object.defineProperty Listener.prototype, key,
           value: null
           writable: false
