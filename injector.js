@@ -31,22 +31,39 @@
     };
 
     Injector.ensureProperties = function(instance) {
-      var k, v, _ref1;
+      var key;
 
-      _ref1 = instance.constructor.inject;
-      for (k in _ref1) {
-        v = _ref1[k];
-        if (instance.hasOwnProperty(k)) {
+      for (key in instance.constructor.inject) {
+        if (instance.hasOwnProperty(key)) {
           throw new Error("Injected property must not be object own property");
         }
         if (!instance[k]) {
-          throw new Error("lack of [" + k + "] on initialize");
+          throw new Error("lack of [" + key + "] on initialize");
         }
       }
       return true;
     };
 
-    function Injector() {
+    Injector.prototype._getInjectClass = function(name) {
+      var n, val, _i, _len, _ref1;
+
+      if ((typeof name) === "string") {
+        val = this.root;
+        _ref1 = name.split('.');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          n = _ref1[_i];
+          val = val[n];
+        }
+        return val;
+      } else if (name instanceof Function) {
+        return name();
+      } else {
+        return name;
+      }
+    };
+
+    function Injector(root) {
+      this.root = root != null ? root : root;
       this.known_list = [];
     }
 
@@ -66,15 +83,13 @@
     };
 
     Injector.prototype.unregister = function(Listener) {
-      var Class, n, prop, _ref1;
+      var key, n;
 
       n = this.known_list.indexOf(Listener);
-      _ref1 = Listener.inject;
-      for (prop in _ref1) {
-        Class = _ref1[prop];
-        Object.defineProperty(Listener.prototype, prop, {
+      for (key in Listener.inject) {
+        Object.defineProperty(Listener.prototype, key, {
           get: function() {
-            this['_' + prop] = null;
+            this['_' + key] = null;
             return null;
           },
           configurable: true
@@ -84,17 +99,19 @@
     };
 
     Injector.prototype.mapValue = function() {
-      var Class, args;
+      var InjectClass, args,
+        _this = this;
 
-      Class = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      InjectClass = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       return this.known_list.forEach(function(Listener) {
-        var cnt_key, instance_key, key, val, _ref1, _results;
+        var cnt_key, f, instance_key, key, val, _ref1, _results;
 
         _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
-          val = _ref1[key];
-          if (!(val === Class)) {
+          f = _ref1[key];
+          val = _this._getInjectClass(f);
+          if (val !== InjectClass) {
             continue;
           }
           cnt_key = "update#" + key;
@@ -120,7 +137,7 @@
                   ctor.prototype = func.prototype;
                   var child = new ctor, result = func.apply(child, args);
                   return Object(result) === result ? result : child;
-                })(Class, args, function(){});
+                })(InjectClass, args, function(){});
                 Object.defineProperty(this, cnt_key, {
                   value: Listener[cnt_key],
                   enumerable: false,
@@ -135,18 +152,21 @@
       });
     };
 
-    Injector.prototype.mapSingleton = function(Class, instance) {
-      if (!(instance instanceof Class)) {
-        throw "" + instance + " is not " + Class + " instance";
+    Injector.prototype.mapSingleton = function(InjectClass, instance) {
+      var _this = this;
+
+      if (!(instance instanceof InjectClass)) {
+        throw "" + instance + " is not " + InjectorClass + " instance";
       }
       return this.known_list.forEach(function(Listener) {
-        var key, val, _ref1, _results;
+        var f, key, val, _ref1, _results;
 
         _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
-          val = _ref1[key];
-          if (!(val === Class)) {
+          f = _ref1[key];
+          val = _this._getInjectClass(f);
+          if (val !== InjectClass) {
             continue;
           }
           if (Listener.prototype[key]) {
@@ -158,24 +178,28 @@
       });
     };
 
-    Injector.prototype.unmap = function(Class) {
-      if (Class == null) {
-        Class = null;
+    Injector.prototype.unmap = function(InjectClass) {
+      var _this = this;
+
+      if (InjectClass == null) {
+        InjectClass = null;
       }
       return this.known_list.forEach(function(Listener) {
-        var key, val, _ref1, _results;
+        var f, key, val, _ref1, _results;
 
         _ref1 = Listener.inject;
         _results = [];
         for (key in _ref1) {
-          val = _ref1[key];
-          if (!(Class != null) || val === Class) {
-            _results.push(Object.defineProperty(Listener.prototype, key, {
-              value: null,
-              writable: false,
-              configurable: true
-            }));
+          f = _ref1[key];
+          if (!(!(InjectClass != null) || _this._getInjectClass(f) === InjectClass)) {
+            continue;
           }
+          val = _this._getInjectClass(f);
+          _results.push(Object.defineProperty(Listener.prototype, key, {
+            value: null,
+            writable: false,
+            configurable: true
+          }));
         }
         return _results;
       });
