@@ -30,12 +30,13 @@ class root.Injector
 
   register: (Listener, inject = null) ->
     @known_list.push Listener
-    if inject then Listener.inject = inject
     for key of Listener.inject
       Object.defineProperty Listener.prototype, key,
         value: null
         writable: false
         configurable: true
+
+    if inject then Listener.inject = inject
 
   unregister: (Listener)->
     n = @known_list.indexOf(Listener)
