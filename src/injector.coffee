@@ -28,8 +28,9 @@ class root.Injector
   constructor: (@root = root)->
     @known_list = []
 
-  register: (Listener)->
+  register: (Listener, inject = null) ->
     @known_list.push Listener
+    if inject then Listener.inject = inject
     for key of Listener.inject
       Object.defineProperty Listener.prototype, key,
         value: null
