@@ -1,6 +1,6 @@
 {
   "name": "injector.js",
-  "main": "injector.js",
+  "main": "dist/injector.js",
   "version": "0.0.0",
   "homepage": "https://github.com/mizchi/injector.js",
   "authors": [
