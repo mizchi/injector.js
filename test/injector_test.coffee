@@ -2,8 +2,6 @@
 assert = require "assert"
 
 # replace mocha later
-describe = (str,fn) -> fn()
-it = (str, fn) -> fn()
 
 describe "Injector", ->
   describe "#mapValue", ->
