@@ -1,6 +1,6 @@
 {
   "name": "injector",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "injector inspired by robotlegs",
   "main": "injector.js",
   "scripts": {

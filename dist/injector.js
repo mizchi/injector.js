@@ -165,9 +165,6 @@
           if (val !== InjectClass) {
             continue;
           }
-          if (Listener.prototype[key]) {
-            throw "" + key + " already exists";
-          }
           _results.push(Listener.prototype[key] = instance);
         }
         return _results;

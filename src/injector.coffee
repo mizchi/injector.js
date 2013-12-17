@@ -93,7 +93,7 @@ class root.Injector
         val = @_getInjectClass(f)
         if val isnt InjectClass then continue
 
-        if Listener::[key] then throw "#{key} already exists"
+        # if Listener::[key] then throw "#{key} already exists"
         Listener::[key] = instance
 
   unmap: (InjectClass = null) ->
