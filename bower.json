@@ -1,7 +1,7 @@
 {
   "name": "injector.js",
   "main": "dist/injector.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/mizchi/injector.js",
   "authors": [
     "Koutarou Chikuba <miz404@gmail.com>"

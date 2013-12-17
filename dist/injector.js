@@ -36,7 +36,7 @@
         if (instance.hasOwnProperty(key)) {
           throw new Error("Injected property must not be object own property");
         }
-        if (!instance[k]) {
+        if (!instance[key]) {
           throw new Error("lack of [" + key + "] on initialize");
         }
       }

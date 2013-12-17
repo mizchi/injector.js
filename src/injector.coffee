@@ -11,7 +11,7 @@ class root.Injector
   @ensureProperties: (instance)->
     for key of instance.constructor.inject
       if instance.hasOwnProperty key then throw new Error "Injected property must not be object own property"
-      unless instance[k] then throw new Error "lack of [#{key}] on initialize"
+      unless instance[key] then throw new Error "lack of [#{key}] on initialize"
     true
 
   _getInjectClass: (name) ->
